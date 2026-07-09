@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>AFFAA · League Hub</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AFFAA">
+<link rel="icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;background:#000;color:#f5f5f7;
+  min-height:100vh;display:grid;place-items:center;padding:24px;padding-top:calc(24px + env(safe-area-inset-top))}
+.box{width:100%;max-width:360px;text-align:center}
+.ball{width:88px;height:88px;border-radius:22px;margin:0 auto 22px;display:block}
+h1{font-size:26px;letter-spacing:-.02em;margin-bottom:6px}
+p{color:#a1a1a6;font-size:14.5px;line-height:1.5;margin-bottom:22px}
+input{width:100%;padding:13px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:#161618;
+  color:#f5f5f7;font-size:16px;outline:none;text-align:center;letter-spacing:.02em}
+input:focus{border-color:#d4af37}
+button{width:100%;margin-top:12px;padding:13px;border-radius:12px;border:none;background:#d4af37;color:#1a1400;
+  font-size:16px;font-weight:700;cursor:pointer}
+button:disabled{opacity:.5}
+.err{color:#ff6b81;font-size:13.5px;margin-top:12px;min-height:18px}
+.tiny{font-size:12px;color:#6e6e73;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="box">
+  <img class="ball" src="icon-192.png" alt="">
+  <h1>AFFAA League Hub</h1>
+  <p>League members only. Enter the passphrase from the group chat.</p>
+  <form id="f">
+    <input id="pw" type="password" autocomplete="current-password" placeholder="Passphrase" autofocus>
+    <button id="go">Unlock</button>
+  </form>
+  <div class="err" id="err"></div>
+  <p class="tiny">Remembered on this device after the first unlock.</p>
+</div>
+<script>
+const SALT="jtpN8I3qMS5ifre3CWNSCg==",IV="wED5Nf38mG1Z4nXG",CT_URL="site.bin",ITERS=310000;
+const b2a=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function unlock(pw,fromSaved){
+  const err=document.getElementById('err');
+  const btn=document.getElementById('go');
+  btn.disabled=true;err.textContent=fromSaved?'':'Unlocking…';
+  try{
+    const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+    const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b2a(SALT),iterations:ITERS,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
+    const ct=await fetch(CT_URL+'?v='+encodeURIComponent(SALT.slice(0,8))).then(r=>r.arrayBuffer());
+    const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b2a(IV)},key,ct);
+    try{localStorage.setItem('affaa-key',pw);}catch(e){}
+    const html=new TextDecoder().decode(pt);
+    document.open();document.write(html);document.close();
+  }catch(e){
+    btn.disabled=false;
+    if(fromSaved){try{localStorage.removeItem('affaa-key');}catch(_){}}
+    else err.textContent='That\u2019s not it \u2014 check the group chat.';
+  }
+}
+document.getElementById('f').addEventListener('submit',e=>{e.preventDefault();const v=document.getElementById('pw').value.trim();if(v)unlock(v,false);});
+try{const saved=localStorage.getItem('affaa-key');if(saved)unlock(saved,true);}catch(e){}
+</script>
+</body>
+</html>
