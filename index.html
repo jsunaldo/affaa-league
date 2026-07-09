@@ -43,7 +43,7 @@ button:disabled{opacity:.5}
   <p class="tiny">Remembered on this device after the first unlock.</p>
 </div>
 <script>
-const SALT="FhBlSmAlfd7sB2ql3FoKOQ==",IV="ZOtBDD0/jtlajM1m",CT_URL="site.bin",ITERS=310000;
+const SALT="bb7eCoAt9SIE+39toA2lUA==",IV="rf+R+PVA6c8MWDvt",CT_URL="site.bin",ITERS=310000;
 const b2a=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function unlock(pw,fromSaved){
   const err=document.getElementById('err');
@@ -55,6 +55,7 @@ async function unlock(pw,fromSaved){
     const ct=await fetch(CT_URL+'?v='+encodeURIComponent(SALT.slice(0,8))).then(r=>r.arrayBuffer());
     const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b2a(IV)},key,ct);
     try{localStorage.setItem('affaa-key',pw);}catch(e){}
+    window.__unlocked=1;
     const html=new TextDecoder().decode(pt);
     document.open();document.write(html);document.close();
   }catch(e){
@@ -65,6 +66,16 @@ async function unlock(pw,fromSaved){
 }
 document.getElementById('f').addEventListener('submit',e=>{e.preventDefault();const v=document.getElementById('pw').value.trim();if(v)unlock(v,false);});
 try{const saved=localStorage.getItem('affaa-key');if(saved)unlock(saved,true);}catch(e){}
+// self-heal: if a newer build exists, refresh the cached loader and reload once
+try{
+  fetch(location.pathname,{cache:'reload'}).then(r=>r.text()).then(t=>{
+    const m=t.match(/SALT="([^"]+)"/);
+    if(m&&m[1]!==SALT&&!window.__unlocked&&!sessionStorage.getItem('affaa-reloaded')){
+      sessionStorage.setItem('affaa-reloaded','1');
+      location.reload();
+    }
+  }).catch(()=>{});
+}catch(e){}
 </script>
 </body>
 </html>
