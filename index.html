@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>AFFAA · League Hub</title>
+<title>AFFAA &middot; League Hub</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -14,67 +14,91 @@
 <link rel="icon" href="icon-192.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;background:#000;color:#f5f5f7;
-  min-height:100vh;display:grid;place-items:center;padding:24px;padding-top:calc(24px + env(safe-area-inset-top))}
-.box{width:100%;max-width:360px;text-align:center}
-.ball{width:88px;height:88px;border-radius:22px;margin:0 auto 22px;display:block}
-h1{font-size:26px;letter-spacing:-.02em;margin-bottom:6px}
-p{color:#a1a1a6;font-size:14.5px;line-height:1.5;margin-bottom:22px}
-input{width:100%;padding:13px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:#161618;
-  color:#f5f5f7;font-size:16px;outline:none;text-align:center;letter-spacing:.02em}
-input:focus{border-color:#d4af37}
-button{width:100%;margin-top:12px;padding:13px;border-radius:12px;border:none;background:#d4af37;color:#1a1400;
-  font-size:16px;font-weight:700;cursor:pointer}
-button:disabled{opacity:.5}
-.err{color:#ff6b81;font-size:13.5px;margin-top:12px;min-height:18px}
-.tiny{font-size:12px;color:#6e6e73;margin-top:18px}
+:root{--gold:#d4af37;--ink:#f5f5f7;--dim:#a1a1a6;--faint:#6e6e73;--ground:#0a0a0c;--card:#161619;--line:rgba(255,255,255,.12)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;background:var(--ground);color:var(--ink);
+  min-height:100svh;display:grid;place-items:center;padding:28px;padding-top:calc(28px + env(safe-area-inset-top));overflow:hidden;position:relative}
+.glow{position:fixed;z-index:0;width:min(130vw,820px);height:min(130vw,820px);border-radius:50%;top:-34%;left:50%;transform:translateX(-50%);
+  background:radial-gradient(circle,rgba(212,175,55,.16),rgba(212,175,55,.04) 42%,transparent 66%);filter:blur(6px);pointer-events:none}
+.box{position:relative;z-index:1;width:100%;max-width:396px;text-align:center}
+.ball{width:60px;height:60px;margin:0 auto 22px;display:block;filter:drop-shadow(0 6px 20px rgba(212,175,55,.35))}
+.eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+h1{font-size:clamp(2.3rem,9vw,3rem);letter-spacing:-.03em;line-height:1.02;margin-bottom:12px;font-weight:800;
+  background:linear-gradient(180deg,#fff 30%,#cfc8b6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{color:var(--dim);font-size:15px;line-height:1.5;margin:0 auto 28px;max-width:32ch}
+.actions{display:flex;flex-direction:column;gap:11px}
+.actions.hide{display:none}
+.btn{width:100%;padding:14px;border-radius:13px;border:1px solid transparent;font-size:16px;font-weight:700;cursor:pointer;
+  font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:filter .15s,background .15s}
+.btn.primary{background:var(--gold);color:#1a1400}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{background:var(--card)}
+.btn:disabled{opacity:.55}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+#pf{display:none;flex-direction:column;gap:11px}
+#pf.show{display:flex}
+input{width:100%;padding:14px 16px;border-radius:13px;border:1px solid var(--line);background:var(--card);
+  color:var(--ink);font-size:16px;outline:none;text-align:center;letter-spacing:.02em;font-family:inherit}
+input:focus{border-color:var(--gold)}
+.err{color:#ff6b81;font-size:13.5px;margin-top:13px;min-height:18px}
+.tiny{font-size:12px;color:var(--faint);margin-top:18px}
 </style>
 </head>
 <body>
+<div class="glow"></div>
 <div class="box">
-  <img class="ball" src="icon-192.png" alt="">
-  <h1>AFFAA League Hub</h1>
-  <p>League members only. Enter the passphrase from the group chat.</p>
-  <form id="f">
-    <input id="pw" type="password" autocomplete="current-password" placeholder="Passphrase" autofocus>
-    <button id="go">Unlock</button>
+  <svg class="ball" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+    <ellipse cx="32" cy="32" rx="30" ry="19" fill="#7a4a1e" stroke="#d4af37" stroke-width="2"/>
+    <path d="M20 32h24M32 25v14M23 28v8M27 26.5v11M37 26.5v11M41 28v8" stroke="#f3e6c4" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+  <div class="eyebrow">Members only &middot; since 2014</div>
+  <h1>The AFFAA<br>League Hub</h1>
+  <p class="tag">Thirteen seasons &mdash; every keeper, trade, dollar, and roast, in one place.</p>
+  <div class="actions" id="actions">
+    <button class="btn primary" id="enter">Enter the Hub</button>
+    <a class="btn ghost" href="guide.html">How It Works</a>
+  </div>
+  <form id="pf">
+    <input id="pw" type="password" autocomplete="current-password" placeholder="Passphrase from the group chat">
+    <button class="btn primary" id="go" type="submit">Unlock</button>
   </form>
   <div class="err" id="err"></div>
   <p class="tiny">Remembered on this device after the first unlock.</p>
 </div>
 <script>
-const SALT="W1+L8ZmV6XAA5KqFwlQTAA==",IV="eRt+yNJMHNiAkQdY",CT_URL="site.bin",ITERS=310000;
+const SALT="2DNLyzBVk+o+5wv8mHQwYA==",IV="FfugrHlOsA5n2SmM",CT_URL="site.bin",ITERS=310000;
 const b2a=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const $=id=>document.getElementById(id);
 async function unlock(pw,fromSaved){
-  const err=document.getElementById('err');
-  const btn=document.getElementById('go');
-  btn.disabled=true;err.textContent=fromSaved?'':'Unlocking…';
+  const err=$("err"), go=$("go");
+  go.disabled=true; err.textContent=fromSaved?"":"Unlocking...";
   try{
-    const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
-    const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b2a(SALT),iterations:ITERS,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
-    const ct=await fetch(CT_URL+'?v='+encodeURIComponent(SALT.slice(0,8))).then(r=>r.arrayBuffer());
-    const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b2a(IV)},key,ct);
-    try{localStorage.setItem('affaa-key',pw);}catch(e){}
+    const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+    const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b2a(SALT),iterations:ITERS,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["decrypt"]);
+    const ct=await fetch(CT_URL+"?v="+encodeURIComponent(SALT.slice(0,8))).then(r=>r.arrayBuffer());
+    const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b2a(IV)},key,ct);
+    try{localStorage.setItem("affaa-key",pw);}catch(e){}
     window.__unlocked=1;
     const html=new TextDecoder().decode(pt);
     document.open();document.write(html);document.close();
   }catch(e){
-    btn.disabled=false;
-    if(fromSaved){try{localStorage.removeItem('affaa-key');}catch(_){}}
-    else err.textContent='That\u2019s not it \u2014 check the group chat.';
+    go.disabled=false;
+    if(fromSaved){try{localStorage.removeItem("affaa-key");}catch(_){}}
+    else err.textContent="Not quite - check the group chat.";
   }
 }
-document.getElementById('f').addEventListener('submit',e=>{e.preventDefault();const v=document.getElementById('pw').value.trim();if(v)unlock(v,false);});
-try{const saved=localStorage.getItem('affaa-key');if(saved)unlock(saved,true);}catch(e){}
-// self-heal: if a newer build exists, refresh the cached loader and reload once
+function reveal(){ $("actions").classList.add("hide"); $("pf").classList.add("show"); $("pw").focus(); }
+function enter(){ let saved=null; try{saved=localStorage.getItem("affaa-key");}catch(e){} if(saved) unlock(saved,true); else reveal(); }
+$("enter").addEventListener("click",enter);
+$("pf").addEventListener("submit",function(e){e.preventDefault();var v=$("pw").value.trim();if(v)unlock(v,false);});
+if(location.hash==="#enter") enter();
 try{
-  fetch(location.pathname,{cache:'reload'}).then(r=>r.text()).then(t=>{
-    const m=t.match(/SALT="([^"]+)"/);
-    if(m&&m[1]!==SALT&&!window.__unlocked&&!sessionStorage.getItem('affaa-reloaded')){
-      sessionStorage.setItem('affaa-reloaded','1');
-      location.reload();
+  fetch(location.pathname,{cache:"reload"}).then(function(r){return r.text();}).then(function(t){
+    var m=t.match(/SALT="([^"]+)"/);
+    if(m&&m[1]!==SALT&&!window.__unlocked&&!sessionStorage.getItem("affaa-reloaded")){
+      sessionStorage.setItem("affaa-reloaded","1"); location.reload();
     }
-  }).catch(()=>{});
+  }).catch(function(){});
 }catch(e){}
 </script>
 </body>

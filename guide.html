@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>AFFAA League Hub &mdash; How It Works</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root{
+    --ground:#0a0a0c; --ground-2:#141417; --card:#161619;
+    --ink:#f5f5f7; --ink-dim:#a7a5ad; --ink-faint:#6f6d76;
+    --line:rgba(255,255,255,.11); --line-2:rgba(255,255,255,.055);
+    --gold:#d4af37; --gold-soft:#ecd487; --teal:#3ac6ba;
+    --warn:#e6ad1f; --bad:#e6566f;
+    --sys:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Segoe UI",Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%}
+  body{background:var(--ground); color:var(--ink); font-family:var(--sys)}
+  .deck{
+    position:fixed; inset:0; overflow-y:auto; overflow-x:hidden;
+    scroll-snap-type:y mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  }
+  .deck::-webkit-scrollbar{display:none}
+  .slide{
+    min-height:100svh; scroll-snap-align:start; scroll-snap-stop:always;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:clamp(28px,7vw,72px) clamp(22px,6vw,64px); position:relative; overflow:hidden;
+  }
+  .wrap{width:100%; max-width:660px; margin:0 auto; position:relative; z-index:2}
+
+  .rise{opacity:0; transform:translateY(20px); transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1)}
+  .slide.on .rise{opacity:1; transform:none}
+  .slide.on .rise:nth-child(2){transition-delay:.06s}
+  .slide.on .rise:nth-child(3){transition-delay:.12s}
+  .slide.on .rise:nth-child(4){transition-delay:.18s}
+  .slide.on .rise:nth-child(5){transition-delay:.24s}
+
+  .eyebrow{font-size:.72rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); margin-bottom:18px; display:flex; align-items:center; gap:10px}
+  .eyebrow::before{content:""; width:26px; height:1.5px; background:linear-gradient(90deg,var(--gold),transparent)}
+  h1{font-size:clamp(2.5rem,9vw,4.6rem); font-weight:800; letter-spacing:-.035em; line-height:1; margin-bottom:22px; text-wrap:balance;
+     background:linear-gradient(180deg,#fff 30%,#cfc8b6); -webkit-background-clip:text; background-clip:text; color:transparent}
+  h2{font-size:clamp(1.9rem,6.2vw,3.3rem); font-weight:800; letter-spacing:-.025em; line-height:1.03; margin-bottom:20px; text-wrap:balance}
+  .lead{font-size:clamp(1.06rem,2.7vw,1.32rem); line-height:1.55; color:var(--ink-dim); max-width:34ch}
+  .lead b{color:var(--ink); font-weight:600}
+  .em{color:var(--gold-soft)}
+  .sub-note{margin-top:16px; color:var(--ink-faint); font-size:.92rem}
+
+  .glow{position:absolute; z-index:1; width:min(120vw,900px); height:min(120vw,900px); border-radius:50%;
+    background:radial-gradient(circle,rgba(212,175,55,.15),rgba(212,175,55,.04) 42%,transparent 66%);
+    top:-30%; left:50%; transform:translateX(-50%); filter:blur(6px); pointer-events:none}
+  .ball{width:56px; height:56px; margin-bottom:24px; display:block; filter:drop-shadow(0 6px 20px rgba(212,175,55,.35))}
+
+  .cards{display:grid; gap:14px; margin-top:30px}
+  .cards.two{grid-template-columns:1fr 1fr}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 18px 20px}
+  .card .k{display:flex; align-items:center; gap:9px; font-weight:700; font-size:1rem; margin-bottom:7px}
+  .card .k .badge{font-size:.66rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ground); background:var(--gold); padding:2px 7px; border-radius:6px}
+  .card p{color:var(--ink-dim); font-size:.96rem; line-height:1.5}
+  .card p b{color:var(--ink); font-weight:600}
+
+  .flist{margin-top:26px; display:grid; gap:2px}
+  .frow{display:flex; gap:14px; align-items:baseline; padding:12px 4px; border-top:1px solid var(--line-2)}
+  .frow:first-child{border-top:none}
+  .frow .t{font-weight:650; font-size:1.05rem; min-width:138px; letter-spacing:-.01em}
+  .frow .d{color:var(--ink-dim); font-size:.97rem; line-height:1.45}
+  .dot{color:var(--teal)}
+
+  .mock{margin-top:24px; background:var(--ground-2); border:1px solid var(--line); border-radius:16px; padding:15px 15px 17px; box-shadow:0 20px 50px rgba(0,0,0,.4)}
+  .mock-h{display:flex; align-items:center; gap:8px; font-weight:750; font-size:.98rem; margin-bottom:12px}
+  .mock-cols{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .mock-col .cap{font-size:.72rem; font-weight:700; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; display:flex; align-items:center; gap:6px}
+  .pc{width:8px; height:8px; border-radius:50%}
+  .chip{display:flex; align-items:center; gap:7px; font-size:.82rem; padding:7px 9px; border-radius:9px; border:1px solid var(--line); background:var(--card); margin-bottom:6px; color:var(--ink)}
+  .chip.warn{border-color:rgba(230,173,31,.6); box-shadow:inset 0 0 0 1px rgba(230,173,31,.28)}
+  .chip.bad{border-color:rgba(230,86,111,.6); box-shadow:inset 0 0 0 1px rgba(230,86,111,.28)}
+  .mock-note{margin-top:11px; font-size:.8rem; line-height:1.45; color:var(--warn); background:rgba(230,173,31,.08); border:1px solid rgba(230,173,31,.3); border-radius:9px; padding:8px 11px}
+  .pill{display:inline-block; margin-top:20px; font-size:.82rem; font-weight:600; color:var(--teal);
+    background:rgba(58,198,186,.09); border:1px solid rgba(58,198,186,.34); padding:8px 14px; border-radius:980px}
+
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; font-size:1.02rem; font-weight:700;
+    padding:14px 26px; border-radius:14px; border:1px solid transparent; cursor:pointer; text-decoration:none; -webkit-tap-highlight-color:transparent}
+  .btn.primary{background:var(--gold); color:#1a1400}
+  .btn.primary:hover{filter:brightness(1.06)}
+  .btn:focus-visible{outline:2px solid var(--gold); outline-offset:3px}
+
+  .final h2{background:linear-gradient(180deg,#fff,var(--gold-soft)); -webkit-background-clip:text; background-clip:text; color:transparent}
+
+  .back{position:fixed; top:calc(14px + env(safe-area-inset-top)); left:16px; z-index:20; display:inline-flex; align-items:center; gap:6px;
+    font-size:.86rem; font-weight:600; color:var(--ink-dim); text-decoration:none; background:rgba(20,20,23,.7); backdrop-filter:blur(8px);
+    border:1px solid var(--line); padding:8px 13px; border-radius:980px}
+  .back:hover{color:var(--ink)}
+
+  .dots{position:fixed; right:16px; top:50%; transform:translateY(-50%); z-index:10; display:flex; flex-direction:column; gap:11px}
+  .dots button{width:8px; height:8px; padding:0; border:none; border-radius:50%; background:rgba(255,255,255,.22); cursor:pointer; transition:.3s; -webkit-tap-highlight-color:transparent}
+  .dots button.act{background:var(--gold); transform:scale(1.35)}
+  .dots button:focus-visible{outline:2px solid var(--gold); outline-offset:3px}
+
+  .hint{position:absolute; bottom:26px; left:50%; transform:translateX(-50%); z-index:3; color:var(--ink-faint); font-size:.8rem; letter-spacing:.04em; display:flex; flex-direction:column; align-items:center; gap:5px}
+  .hint .ar{font-size:1.1rem; animation:bob 1.8s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+
+  @media (max-width:560px){ .cards.two{grid-template-columns:1fr} .frow{flex-direction:column; gap:3px} .frow .t{min-width:0} .dots{right:10px} }
+  @media (prefers-reduced-motion:reduce){ .rise{transition:none; opacity:1; transform:none} .hint .ar{animation:none} }
+</style>
+</head>
+<body>
+<a class="back" href="index.html">&larr; Back</a>
+<div class="deck" id="deck">
+
+  <!-- INTRO -->
+  <section class="slide" id="s0">
+    <div class="glow"></div>
+    <div class="wrap">
+      <svg class="ball rise" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <ellipse cx="32" cy="32" rx="30" ry="19" fill="#7a4a1e" stroke="#d4af37" stroke-width="2"/>
+        <path d="M20 32h24M32 25v14M23 28v8M27 26.5v11M37 26.5v11M41 28v8" stroke="#f3e6c4" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="eyebrow rise">The tour</div>
+      <h1 class="rise">Here's what's<br>inside</h1>
+      <p class="lead rise">A quick look at everything the Hub does &mdash; then jump in. Swipe up.</p>
+    </div>
+    <div class="hint"><span>swipe up</span><span class="ar">&uarr;</span></div>
+  </section>
+
+  <!-- SAVE AS APP -->
+  <section class="slide" id="s1">
+    <div class="wrap">
+      <div class="eyebrow rise">Step 1</div>
+      <h2 class="rise">Put it on your home screen</h2>
+      <p class="lead rise">It's a real app &mdash; no App Store, no download. Add it once and it opens straight from your phone. <b>No more digging through Dropbox or Google Drive.</b></p>
+      <div class="cards two rise">
+        <div class="card">
+          <div class="k">&#128241; iPhone <span class="badge">Safari</span></div>
+          <p>Tap <b>Share</b> (the box with the &uarr;), scroll down, tap <b>Add to Home Screen</b>.</p>
+        </div>
+        <div class="card">
+          <div class="k">&#129302; Android <span class="badge">Chrome</span></div>
+          <p>Tap the <b>&#8942;</b> menu, then <b>Install app</b> (or <b>Add to Home screen</b>).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LATEST -->
+  <section class="slide" id="s2">
+    <div class="wrap">
+      <div class="eyebrow rise">Step 2</div>
+      <h2 class="rise">Always land on the newest version</h2>
+      <p class="lead rise">Trades, scores, keepers and new features drop <span class="em">all season long</span>. To make sure you're seeing the latest:</p>
+      <div class="cards rise" style="margin-top:26px">
+        <div class="card">
+          <div class="k">&#128260; Close it all the way, then reopen</div>
+          <p>Swipe the app <b>fully off</b> your recent-apps list before you reopen it from your home screen. Do that and you'll always get the freshest scores, trades, and tools.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THIS SEASON -->
+  <section class="slide" id="s3">
+    <div class="wrap">
+      <div class="eyebrow rise">This season</div>
+      <h2 class="rise">Where the live action lives</h2>
+      <p class="lead rise">Everything happening <span class="em">right now</span> &mdash; pick the current year from the dropdown up top.</p>
+      <div class="flist rise">
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Overview</div><div class="d">Key dates, the countdown, the rules, and who's paid up.</div></div>
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Keepers</div><div class="d">Declare who you're keeping and see everyone's picks as they lock in.</div></div>
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Draft Board</div><div class="d">The full board &mdash; who's on the clock, kept players, and traded picks.</div></div>
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Trades</div><div class="d">Every deal logged, with the picks and players that changed hands.</div></div>
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Trade Helper</div><div class="d">Line up two teams and stress-test a deal before you send it (next slide).</div></div>
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Punishments</div><div class="d">Who's on the hook this year and the menu of consequences.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRADE HELPER -->
+  <section class="slide" id="s4">
+    <div class="wrap">
+      <div class="eyebrow rise">New this year</div>
+      <h2 class="rise">The Trade Helper</h2>
+      <p class="lead rise">Line up two teams, build an offer, and it instantly flags any keeper you'd be <span class="em">screwing yourself on</span> &mdash; before you hit send.</p>
+      <div class="mock rise" aria-hidden="true">
+        <div class="mock-h">&#129309; The Offer</div>
+        <div class="mock-cols">
+          <div class="mock-col">
+            <div class="cap"><span class="pc" style="background:#d46aa0"></span> You send</div>
+            <div class="chip">Marcus Vale (TE)</div>
+            <div class="chip warn">&#9888;&#65039; Pick 9.08</div>
+          </div>
+          <div class="mock-col">
+            <div class="cap"><span class="pc" style="background:#3ac6ba"></span> They send</div>
+            <div class="chip bad">&#10071; Pick 2.06</div>
+            <div class="chip">Pick 4.06</div>
+          </div>
+        </div>
+        <div class="mock-note">&#9888;&#65039; That 9th-round keeper would cost you a 4th now &middot; &#10071; their kept player can't be kept at all</div>
+      </div>
+      <span class="pill rise">Only on the current season &mdash; pick this year up top</span>
+    </div>
+  </section>
+
+  <!-- ALL-TIME -->
+  <section class="slide" id="s5">
+    <div class="wrap">
+      <div class="eyebrow rise">All-Time</div>
+      <h2 class="rise">The record books</h2>
+      <p class="lead rise">Thirteen years of receipts &mdash; choose <span class="em">All-Time</span> in the dropdown.</p>
+      <div class="flist rise">
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Records</div><div class="d">Every league record &mdash; highest weeks, blowouts, streaks, title counts.</div></div>
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> The Ledger</div><div class="d">Who's actually up and who's down, all-time &mdash; real money, receipts included.</div></div>
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Player Almanac</div><div class="d">Look up anyone &mdash; every time he was drafted, kept, or traded since 2014.</div></div>
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Lore &amp; Rivalries</div><div class="d">Head-to-head history, the canon, and the moments that live forever.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIOR SEASONS -->
+  <section class="slide" id="s6">
+    <div class="wrap">
+      <div class="eyebrow rise">2014 &rarr; 2025</div>
+      <h2 class="rise">Rewind to any season</h2>
+      <p class="lead rise">Pick <span class="em">any year</span> from the dropdown and the whole season opens up.</p>
+      <div class="flist rise">
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Champions</div><div class="d">The podium and final standings for every year on record.</div></div>
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Matchups</div><div class="d">Every week's scores &mdash; and tap a game to see both lineups.</div></div>
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Draft Boards</div><div class="d">The full draft, keepers marked, for every season we could dig up.</div></div>
+        <div class="frow"><div class="t"><span class="dot">&rsaquo;</span> Newsletters</div><div class="d">The weekly recap for that week, right where it happened.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTERS -->
+  <section class="slide" id="s7">
+    <div class="wrap">
+      <div class="eyebrow rise">Every week &middot; &#129302;</div>
+      <h2 class="rise">Recaps from the Assistant to the GOAT Commish</h2>
+      <p class="lead rise">A recap for <b>every week of every season</b> &mdash; winners hailed, losers roasted, a Toilet Bowl watch for the cellar.</p>
+      <div class="cards rise" style="margin-top:26px">
+        <div class="card">
+          <div class="k">&#128240; Every number's real. Every roast is on purpose.</div>
+          <p>Find them on the <b>Matchups</b> tab (look for the &#128240;) or read the whole archive. Nothing's made up but the jokes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <section class="slide final" id="s8">
+    <div class="glow" style="top:auto; bottom:-32%"></div>
+    <div class="wrap">
+      <div class="eyebrow rise">That's the tour</div>
+      <h2 class="rise">Now go talk<br>your trash.</h2>
+      <div class="rise" style="margin-top:26px"><a class="btn primary" href="index.html#enter">Enter the Hub &rarr;</a></div>
+      <p class="sub-note rise" style="margin-top:20px">See you at the draft. &#127944;</p>
+    </div>
+  </section>
+
+</div>
+<nav class="dots" id="dots" aria-label="slides"></nav>
+<script>
+(function(){
+  var deck=document.getElementById('deck');
+  var slides=[].slice.call(deck.querySelectorAll('.slide'));
+  var dots=document.getElementById('dots');
+  slides.forEach(function(s,i){
+    var b=document.createElement('button');
+    b.setAttribute('aria-label','Go to slide '+(i+1));
+    b.addEventListener('click',function(){ s.scrollIntoView({behavior:'smooth'}); });
+    dots.appendChild(b);
+  });
+  var btns=[].slice.call(dots.children);
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      var i=slides.indexOf(e.target);
+      if(e.isIntersecting && e.intersectionRatio>.55){
+        e.target.classList.add('on');
+        btns.forEach(function(b,j){ b.classList.toggle('act', j===i); });
+      }
+    });
+  },{root:deck, threshold:[.55]});
+  slides.forEach(function(s){ io.observe(s); });
+  slides[0].classList.add('on'); if(btns[0]) btns[0].classList.add('act');
+  window.addEventListener('keydown',function(e){
+    var cur=slides.findIndex(function(s){ return s.classList.contains('on'); });
+    if(e.key==='ArrowDown'||e.key==='PageDown'){ e.preventDefault(); if(slides[cur+1]) slides[cur+1].scrollIntoView({behavior:'smooth'}); }
+    if(e.key==='ArrowUp'||e.key==='PageUp'){ e.preventDefault(); if(slides[cur-1]) slides[cur-1].scrollIntoView({behavior:'smooth'}); }
+  });
+})();
+</script>
+</body>
+</html>
