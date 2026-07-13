@@ -66,7 +66,7 @@ input:focus{border-color:var(--gold)}
   <p class="tiny">Remembered on this device after the first unlock.</p>
 </div>
 <script>
-const SALT="zMGvMgOUqElUTFsexndaGg==",IV="nQ0iyJteGmB3YEhw",CT_URL="site.bin",ITERS=310000;
+const SALT="l0VBZeppfHXmha1s+lNTcg==",IV="hiwjB8BYt65BRYbo",CT_URL="site.bin",ITERS=310000;
 const b2a=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const $=id=>document.getElementById(id);
 async function unlock(pw,fromSaved){
@@ -80,7 +80,7 @@ async function unlock(pw,fromSaved){
     try{localStorage.setItem("affaa-key",pw);}catch(e){}
     window.__unlocked=1;
     const html=new TextDecoder().decode(pt);
-    try{ history.replaceState(null,"",location.pathname+location.search); }catch(_){}
+    if(location.hash==="#enter"){try{ history.replaceState(null,"",location.pathname+location.search); }catch(_){}}
     // Swap the app in WITHOUT document.open()/write() (which discards this whole script
     // context and leaves the app's big inline script un-run). Run the handoff from a script
     // appended to <head> (setting body.innerHTML replaces the loader script, so it must live
