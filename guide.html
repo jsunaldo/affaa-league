@@ -79,6 +79,7 @@
   .chip.warn{border-color:rgba(230,173,31,.6); box-shadow:inset 0 0 0 1px rgba(230,173,31,.28)}
   .chip.bad{border-color:rgba(230,86,111,.6); box-shadow:inset 0 0 0 1px rgba(230,86,111,.28)}
   .mock-note{margin-top:11px; font-size:.8rem; line-height:1.45; color:var(--warn); background:rgba(230,173,31,.08); border:1px solid rgba(230,173,31,.3); border-radius:9px; padding:8px 11px}
+  .mock-note.bad{color:#e6566f; background:rgba(230,86,111,.08); border-color:rgba(230,86,111,.35)}
   .pill{display:inline-block; margin-top:20px; font-size:.82rem; font-weight:600; color:var(--teal);
     background:rgba(58,198,186,.09); border:1px solid rgba(58,198,186,.34); padding:8px 14px; border-radius:980px}
 
@@ -189,16 +190,17 @@
         <div class="mock-cols">
           <div class="mock-col">
             <div class="cap"><span class="pc" style="background:#d46aa0"></span> You send</div>
-            <div class="chip">Marcus Vale (TE)</div>
             <div class="chip warn">&#9888;&#65039; Pick 9.08</div>
+            <div class="chip bad">&#10071; Pick 2.06</div>
           </div>
           <div class="mock-col">
             <div class="cap"><span class="pc" style="background:#3ac6ba"></span> They send</div>
-            <div class="chip bad">&#10071; Pick 2.06</div>
-            <div class="chip">Pick 4.06</div>
+            <div class="chip">Pick 4.10</div>
+            <div class="chip">Pick 6.03</div>
           </div>
         </div>
-        <div class="mock-note">&#9888;&#65039; That 9th-round keeper would cost you a 4th now &middot; &#10071; their kept player can't be kept at all</div>
+        <div class="mock-note">&#9888;&#65039; You were going to keep Marcus Vale with this pick. If you go through with this trade, your next available pick to keep him is 4.10.</div>
+        <div class="mock-note bad">&#10071; You were going to keep Deon Pike with this pick. If you go through with this trade you do not have a free pick available to keep him.</div>
       </div>
       <span class="pill rise">Only on the current season &mdash; pick this year up top</span>
     </div>
