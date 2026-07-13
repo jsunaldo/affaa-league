@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="AFFAA">
 <link rel="icon" href="icon-192.png">
-<style>
+<style id="ld">
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--gold:#d4af37;--ink:#f5f5f7;--dim:#a1a1a6;--faint:#6e6e73;--ground:#0a0a0c;--card:#161619;--line:rgba(255,255,255,.12)}
 body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;background:var(--ground);color:var(--ink);
@@ -66,7 +66,7 @@ input:focus{border-color:var(--gold)}
   <p class="tiny">Remembered on this device after the first unlock.</p>
 </div>
 <script>
-const SALT="l0VBZeppfHXmha1s+lNTcg==",IV="hiwjB8BYt65BRYbo",CT_URL="site.bin",ITERS=310000;
+const SALT="LFOvAjjZbfiq7KKvpY4gxQ==",IV="5PtOoLxbcuByq8Ps",CT_URL="site.bin",ITERS=310000;
 const b2a=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const $=id=>document.getElementById(id);
 async function unlock(pw,fromSaved){
@@ -91,6 +91,7 @@ async function unlock(pw,fromSaved){
     window.__affaaHTML=html;
     var boot=document.createElement("script");
     boot.textContent="var d=new DOMParser().parseFromString(window.__affaaHTML,'text/html');"
+      +"var ld=document.getElementById('ld');if(ld)ld.parentNode.removeChild(ld);"
       +"var hs=d.head.children,j;for(j=0;j<hs.length;j++){if(hs[j].tagName!='SCRIPT')document.head.appendChild(document.importNode(hs[j],true));}"
       +"document.body.innerHTML=d.body.innerHTML;"
       +"var ss=d.body.querySelectorAll('script'),k;for(k=0;k<ss.length;k++){if(ss[k].type==='application/json')continue;(0,eval)(ss[k].textContent);}";
