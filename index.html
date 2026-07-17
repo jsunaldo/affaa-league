@@ -66,7 +66,7 @@ input:focus{border-color:var(--gold)}
   <p class="tiny">Remembered on this device after the first unlock.</p>
 </div>
 <script>
-const SALT="M4ejcC3I9bbDnMnappoKag==",IV="K808mxgwh0KKi12v",CT_URL="site.bin",ITERS=310000;
+const SALT="hpNVs19kwuwiQ5dh9bpu8w==",IV="rS30jnI7voT5AxxE",CT_URL="site.bin",ITERS=310000;
 const b2a=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const $=id=>document.getElementById(id);
 async function unlock(pw,fromSaved){
@@ -115,6 +115,9 @@ try{
     }
   }).catch(function(){});
 }catch(e){}
+// offline support: sw.js caches the versioned site.bin (cache-first) and falls
+// back to the last-seen loader/payloads when the network is gone
+if("serviceWorker" in navigator){try{navigator.serviceWorker.register("sw.js").catch(function(){});}catch(e){}}
 </script>
 </body>
 </html>
