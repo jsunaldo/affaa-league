@@ -66,7 +66,7 @@ input:focus{border-color:var(--gold)}
   <p class="tiny">Remembered on this device after the first unlock.</p>
 </div>
 <script>
-const SALT="sOmkcLpUnZjELWpdehLPmg==",IV="qircq4gqC/P+acLB",CT_URL="site.bin",ITERS=310000;
+const SALT="O8jy7SPAG0h7bacoaYXFOg==",IV="CIwuy4m7txv+adUA",CT_URL="site.bin",ITERS=310000;
 const b2a=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const $=id=>document.getElementById(id);
 async function unlock(pw,fromSaved){
@@ -75,7 +75,7 @@ async function unlock(pw,fromSaved){
   try{
     const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
     const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b2a(SALT),iterations:ITERS,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["decrypt"]);
-    const ct=await fetch(CT_URL+"?v="+encodeURIComponent(SALT.slice(0,8))).then(r=>r.arrayBuffer());
+    const ct=await fetch(CT_URL+"?v="+encodeURIComponent(SALT.slice(0,8))).then(r=>{ if(!r.ok) throw new Error("network "+r.status); return r.arrayBuffer(); });
     const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b2a(IV)},key,ct);
     try{localStorage.setItem("affaa-key",pw);}catch(e){}
     window.__unlocked=1;
@@ -98,8 +98,14 @@ async function unlock(pw,fromSaved){
     document.head.appendChild(boot);
   }catch(e){
     go.disabled=false;
-    if(fromSaved){try{localStorage.removeItem("affaa-key");}catch(_){}}
-    else err.textContent="Not quite - check the group chat.";
+    const badKey=!!(e&&(e.name==="OperationError"||/decrypt/i.test(String(e&&e.message||""))));
+    if(badKey){
+      if(fromSaved){ try{localStorage.removeItem("affaa-key");}catch(_){} reveal(); }
+      err.textContent=fromSaved?"The passphrase has changed - grab the new one from the group chat and enter it below.":"Not quite - check the group chat.";
+    } else {
+      // network / server trouble: your saved passphrase is untouched
+      err.textContent="Couldn't reach the hub - check your connection and try again. Nothing on this device was changed.";
+    }
   }
 }
 function reveal(){ $("actions").classList.add("hide"); $("pf").classList.add("show"); $("pw").focus(); }
