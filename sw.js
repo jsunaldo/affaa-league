@@ -41,3 +41,20 @@ self.addEventListener('fetch', e => {
     })());
   }
 });
+// Phone notifications (affaa-sync worker, standard Web Push). Always show one: iPhones drop a subscription
+// that stays silent. The text is the worker's generic line; a tap opens the hub at the matching view
+// (?open=<view>#enter unlocks with the saved passphrase, then src/template.html's afOpenTarget routes).
+self.addEventListener('push', e => {
+  let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) { d = { body: e.data ? e.data.text() : '' }; }
+  e.waitUntil(self.registration.showNotification(d.title || 'AFFAA', { body: d.body || '', tag: d.tag || undefined, renotify: !!d.tag,
+    icon: new URL('icon-192.png', self.registration.scope).href, data: { open: String(d.open || '') } }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const open = String((e.notification.data && e.notification.data.open) || '').replace(/[^a-z0-9-]/g, '').slice(0, 24);
+  const url = new URL((open ? '?open=' + open : '') + '#enter', self.registration.scope).href;
+  e.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+    for (const c of cs) if (c.url.startsWith(self.registration.scope) && 'focus' in c) { c.postMessage({ type: 'af-open', open, url }); return c.focus(); }
+    return clients.openWindow(url);
+  }));
+});
