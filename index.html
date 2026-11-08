@@ -66,7 +66,7 @@ input:focus{border-color:var(--gold)}
   <p class="tiny">Remembered on this device after the first unlock.</p>
 </div>
 <script>
-const SALT="1qHtyY3Ek13AYvQZHHhr5A==",IV="n6osNCiwHSCaZyL6",CT_URL="site.bin",ITERS=310000,BEACON="";
+const SALT="6avmmA4vN1bP+Gb/Kop/Lw==",IV="MF3IAmnkC6xR1wm4",CT_URL="site.bin",ITERS=310000,BEACON="";
 const beacon=(k,e)=>{try{if(BEACON)navigator.sendBeacon(BEACON,JSON.stringify({k,e:String(e||"").slice(0,120),ua:navigator.userAgent.slice(0,90),t:Date.now()}));}catch(_){}};
 const b2a=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const $=id=>document.getElementById(id);
@@ -79,7 +79,7 @@ async function unlock(pw,fromSaved){
     const ct=await fetch(CT_URL+"?v="+encodeURIComponent(SALT.slice(0,8))).then(r=>{ if(!r.ok) throw new Error("network "+r.status); return r.arrayBuffer(); });
     const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b2a(IV)},key,ct);
     try{localStorage.setItem("affaa-key",pw);}catch(e){}
-    window.__unlocked=1; window.__SALT=SALT; window.__BEACON=BEACON; window.__BINV={news:"6D2Ku-ip",lineups:"HFl6I9QC",receipts:"ke_qmgDH",headshots:"cHO_a0Vc"};
+    window.__unlocked=1; window.__SALT=SALT; window.__BEACON=BEACON; window.__BINV={news:"qyOErzzH",lineups:"li0kPRbK",receipts:"5CFoqjks",headshots:"0ZPO8RiH"};
     const html=new TextDecoder().decode(pt);
     if(location.hash==="#enter"){try{ history.replaceState(null,"",location.pathname+location.search); }catch(_){}}
     // Swap the app in WITHOUT document.open()/write() (which discards this whole script
