@@ -66,7 +66,7 @@ input:focus{border-color:var(--gold)}
   <p class="tiny">Remembered on this device after the first unlock.</p>
 </div>
 <script>
-const SALT="SvcybGF2odjWX31JCyTJLA==",IV="mWy+H6cydG/ww1k2",CT_URL="site.bin",ITERS=310000,BEACON="";
+const SALT="V9Yu7cNnSvPTw0N5wJegSw==",IV="MEHadPr6gvvG1uJn",CT_URL="site.bin",ITERS=310000,BEACON="";
 const beacon=(k,e)=>{try{if(BEACON)navigator.sendBeacon(BEACON,JSON.stringify({k,e:String(e||"").slice(0,120),ua:navigator.userAgent.slice(0,90),t:Date.now()}));}catch(_){}};
 const b2a=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const $=id=>document.getElementById(id);
@@ -79,7 +79,7 @@ async function unlock(pw,fromSaved){
     const ct=await fetch(CT_URL+"?v="+encodeURIComponent(SALT.slice(0,8))).then(r=>{ if(!r.ok) throw new Error("network "+r.status); return r.arrayBuffer(); });
     const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b2a(IV),additionalData:new TextEncoder().encode("affaa-static/site/v1")},key,ct);
     try{localStorage.setItem("affaa-key",pw);}catch(e){}
-    window.__unlocked=1; window.__SALT=SALT; window.__affaaKey={hex:Array.from(b2a(SALT),function(b){return b.toString(16).padStart(2,"0");}).join(""),key:key}; window.__BEACON=BEACON; window.__BINV={news:"SvcybGF2",lineups:"SvcybGF2",receipts:"SvcybGF2",headshots:"SvcybGF2",tx:"SvcybGF2"};
+    window.__unlocked=1; window.__SALT=SALT; window.__affaaKey={hex:Array.from(b2a(SALT),function(b){return b.toString(16).padStart(2,"0");}).join(""),key:key}; window.__BEACON=BEACON; window.__BINV={news:"V9Yu7cNn",lineups:"V9Yu7cNn",receipts:"V9Yu7cNn",headshots:"V9Yu7cNn",tx:"V9Yu7cNn"};
     const html=new TextDecoder().decode(pt);
     if(location.hash==="#enter"){try{ history.replaceState(null,"",location.pathname+location.search); }catch(_){}}
     // Swap the app in WITHOUT document.open()/write() (which discards this whole script
